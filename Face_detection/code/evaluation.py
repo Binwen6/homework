@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+
 def plot_roc_curve(test_image, model, scale, stepSize, windowSize, true_face_boxes):
     tpr_list = []
     fpr_list = []
@@ -19,3 +20,6 @@ def plot_roc_curve(test_image, model, scale, stepSize, windowSize, true_face_box
     plt.title('ROC Curve')
     plt.legend(loc="lower right")
     plt.show()
+
+
+
