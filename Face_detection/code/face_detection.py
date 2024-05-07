@@ -24,37 +24,72 @@ def sliding_window(image, stepSize, windowSize):
 
 
 def compute_iou(boxA, boxB):
+    """
+    Compute the Intersection over Union (IoU) of two bounding boxes.
+
+    Parameters:
+    - boxA: tuple/list of (x1, y1, x2, y2) coordinates for the first box
+    - boxB: tuple/list of (x1, y1, x2, y2) coordinates for the second box
+
+    Returns:
+    - iou: float value representing the IoU between boxA and boxB
+    """
+    # Ensure coordinates are integers
+    boxA = [int(coord) for coord in boxA]
+    boxB = [int(coord) for coord in boxB]
+
+    # Determine the (x, y) coordinates of the intersection rectangle
     xA = max(boxA[0], boxB[0])
     yA = max(boxA[1], boxB[1])
     xB = min(boxA[2], boxB[2])
     yB = min(boxA[3], boxB[3])
 
-    interArea = max(0, xB - xA + 1) * max(0, yB - yA + 1)
-    boxAArea = (boxA[2] - boxA[0] + 1) * (boxA[3] - boxA[1] + 1)
-    boxBArea = (boxB[2] - boxB[0] + 1) * (boxB[3] - boxB[1] + 1)
+    # Compute the area of the intersection rectangle
+    interArea = max(0, xB - xA) * max(0, yB - yA)
 
+    # Compute the area of both bounding boxes
+    boxAArea = (boxA[2] - boxA[0]) * (boxA[3] - boxA[1])
+    boxBArea = (boxB[2] - boxB[0]) * (boxB[3] - boxB[1])
+
+    # Compute the intersection over union
     iou = interArea / float(boxAArea + boxBArea - interArea)
     return iou
 
 
+
+import numpy as np
+
 def evaluate_image(image, model, scale, stepSize, windowSize, face_boxes, iou_threshold=0.5):
     positives = []
+
+    # 生成图像金字塔并滑动窗口进行检测
     for resized in pyramid(image, scale=scale):
         for (x, y, window) in sliding_window(resized, stepSize=stepSize, windowSize=windowSize):
             if window.shape[0] != windowSize[1] or window.shape[1] != windowSize[0]:
                 continue
-            # 假设您的特征提取和模型预测代码如下
-            features = resolve_haar_feature(window)
-            pred = model.predict([features])
+
+            features = []
+            for feature_type in ['vertical_edge', 'horizontal_edge', 'diagonal_edge', 'center_surround']:
+                feature = resolve_haar_feature(window, feature_type, (x, y, window.shape[0], window.shape[1]))
+                features.append(feature)
+
+            # 将特征数组展平并调整为匹配模型输入的形状
+            features_array = np.array(features).reshape(1, -1)
+            pred = model.predict(features_array)
+
             if pred == 1:
                 positives.append((x, y, x + windowSize[0], y + windowSize[1]))
+
+    # 转换 face_boxes 为整数坐标
+    if face_boxes is not None:
+        face_boxes = [(int(x_min), int(y_min), int(x_max), int(y_max)) for (x_min, y_min, x_max, y_max) in face_boxes]
 
     true_positives = 0
     false_positives = 0
     detected = []
 
     for pred_box in positives:
-        for true_box in face_boxes:
+        for true_box in face_boxes or []:
             iou = compute_iou(pred_box, true_box)
             if iou > iou_threshold:
                 if true_box not in detected:
@@ -64,11 +99,7 @@ def evaluate_image(image, model, scale, stepSize, windowSize, face_boxes, iou_th
         else:
             false_positives += 1
 
-    if len(positives) == 0:
-        return 0, 0  # 避免除以零的错误
-    TPR = true_positives / len(face_boxes)
-    FPR = false_positives / len(positives)
-    return TPR, FPR
+    return true_positives, false_positives, positives, face_boxes
 
 
 

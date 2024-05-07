@@ -3,7 +3,7 @@ import cv2
 
 def resolve_haar_feature(image, feature_type, coodinates):
     (x, y, width, height) = map(int, coodinates)  # 获取窗口的坐标和尺寸
-    image = cv2.imread(image, cv2.IMREAD_GRAYSCALE)
+    # image = cv2.imread(image, cv2.IMREAD_GRAYSCALE)
     # print(x, y , width, height)
     if feature_type == 'vertical_edge':  # 如果特征类型是'vertical_edge'
         # Divide the window into two rectangles:  # 将窗口分成两个矩形
