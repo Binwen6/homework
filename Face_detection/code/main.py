@@ -18,7 +18,6 @@ labels_file = 'D:\Code\Homework\data\WebFaces_GroundThruth.txt'
 
 def main(folder, file):
     face_box = drawing_face_box(file)
-    face_box_data = drawing_face_box(labels_file)
     negative_samples = select_negative_samples(folder, face_box, num_samples=2)
 
     features = []
@@ -85,16 +84,13 @@ def main(folder, file):
             image_path = os.path.join(image_folder, filename)
             image = cv2.imread(image_path)
 
-            # 检索对应图像的标签
-            face_box = face_box_data.get(filename, None)
-            if face_box:    
-                x_min, y_min, width, height = face_box
-                x_max = x_min + width
-                y_max = y_min + height
-                face_box = (x_min, y_min, x_max, y_max)
+            # 使用 basename 只提取文件名
+            filename_only = os.path.basename(filename)
+            face_boxes = [face_box.get(filename_only, None)]
+            face_boxes = [box for box in face_boxes if box is not None]
                 
             # 计算 true_positives, face_boxes, false_positives 和 positives
-            true_positives, false_positives, positives, face_boxes = evaluate_image(image, pipeline, scale, stepSize, windowSize, face_box, iou_threshold)
+            true_positives, false_positives, positives, face_boxes = evaluate_image(image, pipeline, scale, stepSize, windowSize, face_boxes, iou_threshold)
 
             # 将当前图像的结果添加到总计中
             true_positives_total += true_positives

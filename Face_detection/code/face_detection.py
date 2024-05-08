@@ -34,9 +34,6 @@ def compute_iou(boxA, boxB):
     Returns:
     - iou: float value representing the IoU between boxA and boxB
     """
-    # Ensure coordinates are integers
-    boxA = [int(coord) for coord in boxA]
-    boxB = [int(coord) for coord in boxB]
 
     # Determine the (x, y) coordinates of the intersection rectangle
     xA = max(boxA[0], boxB[0])
@@ -80,9 +77,6 @@ def evaluate_image(image, model, scale, stepSize, windowSize, face_boxes, iou_th
             if pred == 1:
                 positives.append((x, y, x + windowSize[0], y + windowSize[1]))
 
-    # 转换 face_boxes 为整数坐标
-    if face_boxes is not None:
-        face_boxes = [(int(x_min), int(y_min), int(x_max), int(y_max)) for (x_min, y_min, x_max, y_max) in face_boxes]
 
     true_positives = 0
     false_positives = 0
