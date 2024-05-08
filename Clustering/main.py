@@ -7,7 +7,7 @@ import seaborn as sns
 
 # Load the dataset
 # Assuming the dataset file is named 'students003.txt'
-data = pd.read_csv('/mnt/data/students003.txt', sep='\t', header=None, names=['Time', 'ID', 'X', 'Y'])
+data = pd.read_csv('data\TrajectoryData_students003\students003.txt', sep='\t', header=None, names=['Time', 'ID', 'X', 'Y'])
 
 # Function to cluster and visualize each frame
 def cluster_and_visualize(data, epsilon=1.5, min_samples=2):
@@ -48,7 +48,7 @@ def cluster_and_visualize(data, epsilon=1.5, min_samples=2):
 group_animation = cluster_and_visualize(data)
 
 # Save the animation as a video file (optional)
-group_animation.save('/mnt/data/group_discovery_animation.mp4', writer='ffmpeg', fps=2)
+group_animation.save('data\group_discovery_animation.mp4', writer='ffmpeg', fps=2)
 
 # For an inline visualization if you're using a notebook environment
 from IPython.display import HTML
