@@ -23,7 +23,7 @@ def get_parser():
         "--not_face_dir",
         default="/data/chenxd/MachineLearningHW/natural_images",
         type=str,
-        helo="负样本的路径",
+        help="负样本的路径",
     )
     parser.add_argument(
         "--height", default=120, type=int, help="图像的高将被调整大小到height来进行训练"
@@ -44,7 +44,7 @@ def get_parser():
     )
     parser.add_argument(
         "--log_dir",
-        default="/data/chenxd/MachineLearningHW/train_log.txt",
+        default="data/train_log.txt",
         type=str,
         help="训练路径的保存地址，尾部记得加.txt",
     )
